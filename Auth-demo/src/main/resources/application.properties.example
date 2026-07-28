@@ -1,0 +1,12 @@
+spring.application.name=Auth-demo
+
+
+jwt.secret=Z9gI6G2kcHqvPG1rrT9GTuPsWnKIt2124cXal1n8JkixIKz1Cb
+jwt.expiration=3600000
+
+spring.datasource.url = MYSQLURL
+spring.datasource.username = i
+spring.datasource.password = root
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
