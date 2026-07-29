@@ -1,16 +1,25 @@
-package com.example.Auth.demo.Configuration;
+package com.example.Auth.demo.Config;
 
+import com.example.Auth.demo.Security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
 
     @Bean
     public
@@ -25,8 +34,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/login", "/api/users/signup").permitAll()
-                        .anyRequest().authenticated()
-                );
+                        .requestMatchers("/api/users/admin").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);;
 
         return http.build();
     }
